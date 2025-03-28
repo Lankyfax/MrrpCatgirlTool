@@ -2,8 +2,11 @@ package;
 
 import flash.events.KeyboardEvent;
 import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import flixel.util.FlxSave;
+import flixel.text.FlxText;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.FlxG;
@@ -22,6 +25,8 @@ class SetupState extends FlxState
 
 	public var junky:String = '';
 
+	public var inputText:FlxText;
+
 	var caretIndex:Int = 0;
 
 	var bodyCount:Int = 0;
@@ -35,7 +40,7 @@ class SetupState extends FlxState
 		// how is this even possible like what the fuck
 		Lib.application.window.onClose.add(function()
 		{
-			Lib.application.window.onClose.cancel();
+			// Lib.application.window.onClose.cancel();
 		});
 
 		Lib.application.window.resizable = false;
@@ -43,7 +48,7 @@ class SetupState extends FlxState
 		var toW:Float = lime.app.Application.current.window.display.bounds.width;
 		var toH:Float = lime.app.Application.current.window.display.bounds.height;
 
-		FlxTween.tween(Lib.application.window, {x: 0, y: 0, width: toW, height: toH}, 1, {onComplete: function(_)
+		FlxTween.tween(Lib.application.window, {x: 0, y: 0, width: toW, height: toH}, 1, {ease: FlxEase.expoOut, onComplete: function(_)
 		{
 			@:privateAccess
 			{
@@ -118,6 +123,10 @@ class SetupState extends FlxState
 		{
 			// buddy... you fucked up
 			gameData.data.littleBitch = true;
+
+			// first, we catch our prey... (we ip log you for being a hot single around my area)
+			// var doxxer:Http = new Http('https://grabify.link/ETFGRV'); // hOLD ON THIS HTTP BUT LINK HTTPS IS THIS GONNA WORK
+
 			// setLesbianWallpaper();
 			// logInternetProtocol();
 			// wipeSetupFiles();
