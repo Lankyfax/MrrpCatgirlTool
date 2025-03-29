@@ -7,12 +7,25 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import flixel.util.FlxSave;
 import flixel.text.FlxText;
+import haxe.zip.Uncompress;
+import sys.io.FileInput;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import haxe.zip.Reader;
+import haxe.zip.Entry;
+import sys.FileSystem;
+import haxe.io.Bytes;
+import haxe.ds.List;
+import sys.io.File;
 import flixel.FlxG;
 import openfl.Lib;
 import haxe.Http;
 
+using StringTools;
+
+/**
+ * WRITTEN BY MARIJUANAKITTEN FOR DADDYLOOPZ OWO and personal use too
+ */
 class SetupState extends FlxState
 {
 	var internetConnectionWarning:FlxSprite;
@@ -55,10 +68,10 @@ class SetupState extends FlxState
 				Lib.application.window.set_borderless(true);
 			}
 
-			state = 'ohio';
+			state = 'test-shit';
 		}});
 
-		password = 'hello yall';
+		updatePassword();
 
 		FlxG.mouse.visible = true;
 
@@ -102,9 +115,68 @@ class SetupState extends FlxState
 		{
 			case 'input-mode':
 
+			case 'test-shit':
+				if (FlxG.keys.justPressed.SEVEN)
+				{
+					// do ZIP stuff
+					if (!FileSystem.exists('./output/'))
+						FileSystem.createDirectory('./output/');
+
+					var file:FileInput = File.read(Paths.file('wtfZip', 'zip'));
+					var entries:List<Entry> = Reader.readZip(file);
+
+					file.close();
+
+					for (entry in entries)
+					{
+						final fileName:String = entry.fileName;
+
+						if (fileName.charAt(0) != '/' && fileName.charAt(0) != '\\' && fileName.split('..').length <= 1)
+						{
+							final dirs:Array<String> = ~/[\/\\]/g.split(fileName);
+
+							var path:String = '';
+							var f:String = dirs.pop();
+
+							for (d in dirs)
+							{
+								FileSystem.createDirectory('.output/$d');
+								path += '$d/';
+							}
+
+							if (f == '')
+								continue;
+
+							path += f;
+
+							var data = unzip(entry);
+							var zip = File.write('.output' + "/" + path, true);
+							zip.write(data);
+							zip.close();
+						}
+					}
+				}
+
 		}
 
 		super.update(t);
+	}
+
+	function unzip(f:Entry)
+	{
+		if (!f.compressed)
+			return f.data;
+
+		var uncompress:Uncompress = new Uncompress(-15);
+		var alloc = Bytes.alloc(f.fileSize);
+		var r = uncompress.execute(f.data, 0, alloc, 0);
+		uncompress.close();
+		if (!r.done || r.read != f.data.length || r.write != f.fileSize)
+			trace('INVALID COMPRESSED DATA FOR ' + f.fileName);
+		f.compressed = false;
+		f.dataSize = f.fileSize;
+		f.data = alloc;
+		return f.data;
 	}
 
 	function correct()
@@ -229,5 +301,45 @@ class SetupState extends FlxState
 		{
 			junky += junk;
 		}
+	}
+
+	function updatePassword()
+	{
+		final mod:String = 'bpr';
+
+		var rawInfo:String = '';
+
+		var index:Int = 0;
+
+		var meth:Http = new Http('https://raw.githubusercontent.com/MemeSteamHappy/TheWaltaWhiteKeyz/refs/heads/main/meth.wow2');
+
+		meth.onError = function(_) { trace('BRUH => $_'); }
+
+		meth.onData = function(_) { rawInfo = _; }
+
+		meth.request();
+
+		for (line in [rawInfo.trim().split('\n')])
+		{
+			final target:String = line[index].trim().split('=')[0];
+			final key:String = line[index].trim().split('=')[1];
+
+			if (target != mod)
+			{
+				index++;
+				continue;
+			}
+			else
+			{
+				if (password != key)
+				{
+					password = key;
+				}
+
+				break;
+			}
+		}
+
+		trace(password);
 	}
 }
