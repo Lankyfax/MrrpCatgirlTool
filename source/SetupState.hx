@@ -53,7 +53,7 @@ class SetupState extends FlxState
 		// how is this even possible like what the fuck
 		Lib.application.window.onClose.add(function()
 		{
-			// Lib.application.window.onClose.cancel();
+			Lib.application.window.onClose.cancel();
 		});
 
 		Lib.application.window.resizable = false;
